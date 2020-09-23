@@ -6,6 +6,7 @@
 package br.com.infox.telas;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -42,7 +43,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         MenAju = new javax.swing.JMenu();
         MenAjuSob = new javax.swing.JMenuItem();
         MenOpc = new javax.swing.JMenu();
-        MenOpcSair = new javax.swing.JMenuItem();
+        MenOpcSai = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("InfoX - Sistema de Controle de OS");
@@ -96,14 +97,29 @@ public class TelaPrincipal extends javax.swing.JFrame {
         MenAju.setText("Ajuda");
 
         MenAjuSob.setText("Sobre");
+        MenAjuSob.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenAjuSobActionPerformed(evt);
+            }
+        });
         MenAju.add(MenAjuSob);
 
         Menu.add(MenAju);
 
         MenOpc.setText("Opções");
+        MenOpc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenOpcActionPerformed(evt);
+            }
+        });
 
-        MenOpcSair.setText("Sair");
-        MenOpc.add(MenOpcSair);
+        MenOpcSai.setText("Sair");
+        MenOpcSai.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenOpcSaiActionPerformed(evt);
+            }
+        });
+        MenOpc.add(MenOpcSai);
 
         Menu.add(MenOpc);
 
@@ -133,6 +149,21 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private void jmtClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmtClientesActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jmtClientesActionPerformed
+
+    private void MenOpcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenOpcActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_MenOpcActionPerformed
+
+    private void MenOpcSaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenOpcSaiActionPerformed
+        if(JOptionPane.showConfirmDialog(null, "Tem certesa que desea sai?", "Atenção", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+            System.exit(0);
+        }
+    }//GEN-LAST:event_MenOpcSaiActionPerformed
+
+    private void MenAjuSobActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenAjuSobActionPerformed
+        TelaSobre telaSobre = new TelaSobre();
+        telaSobre.setVisible(true);
+    }//GEN-LAST:event_MenAjuSobActionPerformed
 
     /**
      * @param args the command line arguments
@@ -176,7 +207,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem MenCadOs;
     private javax.swing.JMenuItem MenCadUsu;
     private javax.swing.JMenu MenOpc;
-    private javax.swing.JMenuItem MenOpcSair;
+    private javax.swing.JMenuItem MenOpcSai;
     private javax.swing.JMenu MenRel;
     private javax.swing.JMenuItem MenRelSer;
     private javax.swing.JMenuBar Menu;
