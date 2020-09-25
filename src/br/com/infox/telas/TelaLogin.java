@@ -3,6 +3,7 @@ package br.com.infox.telas;
 import java.sql.*;
 
 import br.com.infox.dal.ModuloConexao;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 public class TelaLogin extends javax.swing.JFrame {
@@ -50,6 +51,7 @@ public class TelaLogin extends javax.swing.JFrame {
      */
     public TelaLogin() {
         initComponents();
+        this.setIconImage(new ImageIcon(getClass().getResource("/br/com/infox/icon/icotela/login.png")).getImage());
         
         //Exec o metodo  connector
         // recebe a string de conexão ou NULL;

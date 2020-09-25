@@ -18,7 +18,7 @@ public class TelaSobre extends javax.swing.JFrame {
      */
     public TelaSobre() {
         initComponents();
-        this.setIconImage(new ImageIcon(getClass().getResource("/br/com/infox/icon/info.png")).getImage());
+        this.setIconImage(new ImageIcon(getClass().getResource("/br/com/infox/icon/icotela/info.png")).getImage());
     }
 
     /**
