@@ -6,10 +6,14 @@
 package br.com.infox.telas;
 
 import br.com.infox.dal.ModuloConexao;
+import br.com.infox.valida.Valida;
+
 import java.awt.Color;
+import java.awt.HeadlessException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -42,56 +46,66 @@ public class TelaOs extends javax.swing.JFrame {
     
     //Limpa o JTextFiled para cinza
     public void cleanBorda(){
-        txtUsuId.setBorder(new LineBorder(Color.GRAY));
-        txtUsuNome.setBorder(new LineBorder(Color.GRAY));
-        txtUsuFone.setBorder(new LineBorder(Color.GRAY));
-        txtUsuLogin.setBorder(new LineBorder(Color.GRAY));
-        txtUsuSenha.setBorder(new LineBorder(Color.GRAY));
+        txtOSId.setBorder(new LineBorder(Color.GRAY));
+        txtOsEquipamento.setBorder(new LineBorder(Color.GRAY));
+        txtOsServico.setBorder(new LineBorder(Color.GRAY));
+        txtOsDefeito.setBorder(new LineBorder(Color.GRAY));
+        txtOsCliId.setBorder(new LineBorder(Color.GRAY));
+        txtOsData.setBorder(new LineBorder(Color.GRAY));
+        txtOsTecnico.setBorder(new LineBorder(Color.GRAY));
+        txtOsValor.setBorder(new LineBorder(Color.GRAY));
     }
 
     //Metodo para validar os campos
-    public int validar(JTextField jTextFieldCamp) {
-        if (jTextFieldCamp.getText().isEmpty()
-                || (jTextFieldCamp.getText().indexOf(" ") <= 1
-                && jTextFieldCamp.getText().indexOf(" ") >= 0)) {
-            javax.swing.SwingUtilities.invokeLater(
-                    new Runnable() {
-                public void run() {
-                    jTextFieldCamp.requestFocusInWindow();
-                    jTextFieldCamp.setBorder(new LineBorder(Color.RED));
-                }
-            }
-            );
-            return -1;
-        }
-        return 0;
-    }
+//    public int validar(JTextField jTextFieldCamp) {
+//        if (jTextFieldCamp.getText().isEmpty()
+//                || (jTextFieldCamp.getText().indexOf(" ") <= 1
+//                && jTextFieldCamp.getText().indexOf(" ") >= 0)) {
+//            javax.swing.SwingUtilities.invokeLater( new Runnable() {
+//                                                        public void run() {
+//                                                            JOptionPane.showMessageDialog(null, "Campo obrigatório para realizar a ação");
+//                                                            jTextFieldCamp.requestFocusInWindow();
+//                                                            jTextFieldCamp.setBorder(new LineBorder(Color.RED));
+//                                                        }
+//                                                    });
+//            
+//            return -1;
+//        }
+//        return 0;
+//    }
 
     //Metodo para conbsultar usuário
     private void consultar() {
         cleanBorda();
-        String sql = "SELECT * FROM tbusuarios WHERE iduser=?";
-
+        String sql = "SELECT * FROM tbos WHERE os=?";
+        
         try {
             pst = conexao.prepareStatement(sql);
 
-            pst.setString(1, txtUsuId.getText());
+            pst.setString(1, txtOSId.getText());
 
             rs = pst.executeQuery();
 
-            if (validar(txtUsuId) == 0) {
+            if (Valida.go(txtOSId) == 0) {
                 if (rs.next()) {
-                    txtUsuNome.setText(rs.getString(2));
-                    txtUsuFone.setText(rs.getString(3));
-                    txtUsuLogin.setText(rs.getString(4));
-                    txtUsuSenha.setText(rs.getString(5));
+                    txtOsData.setText(rs.getString(2));
+                    txtOsEquipamento.setText(rs.getString(3));
+                    txtOsDefeito.setText(rs.getString(4));
+                    txtOsServico.setText(rs.getString(5));
+                    txtOsTecnico.setText(rs.getString(6));
+                    txtOsValor.setText(rs.getString(7));
+                    txtOsCliId.setText(rs.getString(8));
+                    
                 } else {
-                    JOptionPane.showMessageDialog(null, "Usuário não cadastrado ou Campo em Branco");
+                    JOptionPane.showMessageDialog(null, "OS inexistente ou Campo em Branco");
 
-                    txtUsuNome.setText(null);
-                    txtUsuFone.setText(null);
-                    txtUsuLogin.setText(null);
-                    txtUsuSenha.setText(null);
+                    txtOsData.setText(null);
+                    txtOsEquipamento.setText(null);
+                    txtOsDefeito.setText(null);
+                    txtOsServico.setText(null);
+                    txtOsTecnico.setText(null);
+                    txtOsValor.setText(null);
+                    txtOsCliId.setText(null);
                 }
             }
 
@@ -102,21 +116,29 @@ public class TelaOs extends javax.swing.JFrame {
 
     private void adicionar() {
         cleanBorda();
-        String sql = "INSERT INTO tbusuarios(usuario, fone, login, senha) VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO tbos(equipamento, defeito, servico, tecnico, valor, idcli) VALUES(?, ?, ?, ? ,? ,?)";
 
-        campos.add(txtUsuNome);
-        campos.add(txtUsuFone);
-        campos.add(txtUsuSenha);
-        campos.add(txtUsuLogin);
+        campos.add(txtOsEquipamento);
+        campos.add(txtOsDefeito);
+        campos.add(txtOsServico);
+        campos.add(txtOsTecnico);
+        campos.add(txtOsValor);
+        campos.add(txtOsCliId);
 
         try {
             pst = conexao.prepareStatement(sql);
 
             //Add a string do formulário (da tela) para o comando SQL
-            pst.setString(1, txtUsuNome.getText());
-            pst.setString(2, txtUsuFone.getText());
-            pst.setString(3, txtUsuLogin.getText());
-            pst.setString(4, txtUsuSenha.getText());
+//            pst.setString(1, txtOsEquipamento.getText());
+//            pst.setString(2, txtOsServico.getText());
+//            pst.setString(3, txtOsDefeito.getText());
+//            pst.setString(4, txtUsuSenha.getText());
+//          
+
+            //Add a string do formulário (da tela) para o comando SQL
+            for(int i = 0; i < campos.size() ;i++){
+                pst.setString(i+1, campos.get(i).getText());
+            }
 
 //            if(txtUsuNome.getText().isEmpty()){
 //                javax.swing.SwingUtilities.invokeLater(
@@ -136,14 +158,17 @@ public class TelaOs extends javax.swing.JFrame {
             int err = 0;
 
             for (JTextField campo : campos) {
-                err = validar(campo);
+                if(0 != Valida.go(campo)){
+                    err = Valida.go(campo);
+                    break;
+                }
             }
 
             if (err == 0) {
                 int adicionado = pst.executeUpdate();
 
                 if (adicionado > 0) {
-                    JOptionPane.showMessageDialog(null, "Usuário adicionado com sucesso");
+                    JOptionPane.showMessageDialog(null, "Ordem de Serviço adicionado com sucesso");
 
                     for (JTextField campo : campos) {
                         campo.setText(null); //Deixa todos os campos null
@@ -153,33 +178,35 @@ public class TelaOs extends javax.swing.JFrame {
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "ERRO:\n" + e);
+        }finally{
+            campos.clear();
         }
     }
 
     private int alterar() {
         cleanBorda();
-        String sql = "UPDATE tbusuarios SET usuario=?, fone=?, login=?, senha=? WHERE iduser=?";
+        String sql = "UPDATE tbos SET equipamento=?, defeito=?, servico=?, tecnico=?, valor=?, idcli=? WHERE OS=?";
 
-        campos.add(txtUsuId);
-        campos.add(txtUsuNome);
-        campos.add(txtUsuFone);
-        campos.add(txtUsuSenha);
-        campos.add(txtUsuLogin);
+        campos.add(txtOsEquipamento);
+        campos.add(txtOsDefeito);
+        campos.add(txtOsServico);
+        campos.add(txtOsTecnico);
+        campos.add(txtOsValor);
+        campos.add(txtOsCliId);
+        campos.add(txtOSId);
 
         try {
             pst = conexao.prepareStatement(sql);
 
             //Add a string do formulário (da tela) para o comando SQL
-            pst.setString(1, txtUsuNome.getText());
-            pst.setString(2, txtUsuFone.getText());
-            pst.setString(3, txtUsuLogin.getText());
-            pst.setString(4, txtUsuSenha.getText());
-            pst.setString(5, txtUsuId.getText());
+            for(int i=1; i<=campos.size();i++){
+                pst.setString(i, campos.get(i-1).getText());
+                System.out.println(i+"° <= "+campos.get(i-1).getText());
+            }
 
             //Faz um for para procurar qual campo estar vazio
             for (JTextField campo : campos) {
-                if (validar(campo) == -1) {
-                    JOptionPane.showMessageDialog(null, "Peencha todos os campos");
+                if (Valida.go(campo) != 0) {
                     return -1;
                 }
             }
@@ -187,16 +214,20 @@ public class TelaOs extends javax.swing.JFrame {
             int adicionado = pst.executeUpdate();
 
             if (adicionado > 0) {
-                JOptionPane.showMessageDialog(null, "Usuário alterado com sucesso");
+                JOptionPane.showMessageDialog(null, "Ordem de Serviço alterada com sucesso");
 
-                //Faz um for em dtodos os campos atribuindo null no texto
-                for (JTextField campo : campos) {
+                //Faz um forEach em dtodos os campos atribuindo null no texto
+                campos.forEach((campo) -> {
                     campo.setText(null);
-                }
+                });
+                
+                txtOsData.setText(null);
+                txtOSId.setText(null);
+                
             }
             return 0;
 
-        } catch (Exception e) {
+        } catch (HeadlessException | SQLException e) {
             JOptionPane.showMessageDialog(null, "ERRO:\n" + e);
             return -1;
         } finally {
@@ -206,31 +237,38 @@ public class TelaOs extends javax.swing.JFrame {
     
     private void remover(){
         cleanBorda();
+        if(Valida.go(txtOSId)==0)
         if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Tem certesa que deseja deletar?", "Atenção", JOptionPane.YES_NO_OPTION)){
-            String sql = "DELETE FROM tbusuarios WHERE iduser=?";
+            String sql = "DELETE FROM tbos WHERE OS=?";
             
             try {
                 pst = conexao.prepareStatement(sql);
 
                 //Add a string do formulário (da tela) para o comando SQL
-                pst.setString(1, txtUsuId.getText());
+                pst.setString(1, txtOSId.getText());
                 
                 int apagado = pst.executeUpdate();
                 
                 if(apagado > 0){
                     JOptionPane.showMessageDialog(null, "Usuário apagado com sucesso");
                     
-                    campos.add(txtUsuId);
-                    campos.add(txtUsuNome);
-                    campos.add(txtUsuFone);
-                    campos.add(txtUsuSenha);
-                    campos.add(txtUsuLogin);
+                    campos.add(txtOsEquipamento);
+                    campos.add(txtOsDefeito);
+                    campos.add(txtOsServico);
+                    campos.add(txtOsTecnico);
+                    campos.add(txtOsValor);
+                    campos.add(txtOsCliId);
+                    campos.add(txtOSId);
+                    campos.add(txtOsData);
 
                     for(JTextField campo : campos){
                         campo.setText(null);
                     }
                 }
             } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Erro:\n"+e);
+            }finally{
+                campos.clear();
             }
         }
     }
@@ -286,34 +324,24 @@ public class TelaOs extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        txtUsuLogin = new javax.swing.JTextField();
-        txtUsuNome = new javax.swing.JTextField();
-        txtUsuId = new javax.swing.JTextField();
-        txtUsuFone = new javax.swing.JTextField();
-        jSeparator2 = new javax.swing.JSeparator();
+        txtOsDefeito = new javax.swing.JTextField();
+        txtOsEquipamento = new javax.swing.JTextField();
+        txtOSId = new javax.swing.JTextField();
+        txtOsServico = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        txtOsData = new javax.swing.JTextField();
+        txtOsTecnico = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        txtOsValor = new javax.swing.JTextField();
+        jLabel7 = new javax.swing.JLabel();
+        txtOsCliId = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        jLabel6 = new javax.swing.JLabel();
-        txtUsuId1 = new javax.swing.JTextField();
-        txtUsuLogin1 = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        txtUsuId3 = new javax.swing.JTextField();
-        jSeparator5 = new javax.swing.JSeparator();
-        txtUsuNome1 = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        txtCliId = new javax.swing.JTextField();
-        jLabel10 = new javax.swing.JLabel();
-        txtCliEmail = new javax.swing.JTextField();
-        jLabel11 = new javax.swing.JLabel();
-        txtClifone = new javax.swing.JTextField();
-        txtCliEndereco = new javax.swing.JTextField();
-        jLabel12 = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -352,36 +380,174 @@ public class TelaOs extends javax.swing.JFrame {
 
         jLabel4.setText("Serviço:");
 
-        txtUsuLogin.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtOsDefeito.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtUsuLoginKeyTyped(evt);
+                txtOsDefeitoKeyTyped(evt);
             }
         });
 
-        txtUsuNome.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtOsEquipamento.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtUsuNomeKeyTyped(evt);
+                txtOsEquipamentoKeyTyped(evt);
             }
         });
 
-        txtUsuId.addInputMethodListener(new java.awt.event.InputMethodListener() {
+        txtOSId.addInputMethodListener(new java.awt.event.InputMethodListener() {
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
             }
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-                txtUsuIdInputMethodTextChanged(evt);
+                txtOSIdInputMethodTextChanged(evt);
             }
         });
-        txtUsuId.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtOSId.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtUsuIdKeyPressed(evt);
+                txtOSIdKeyPressed(evt);
             }
         });
 
-        txtUsuFone.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtOsServico.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtUsuFoneKeyTyped(evt);
+                txtOsServicoKeyTyped(evt);
             }
         });
+
+        jLabel6.setText("Data:");
+
+        txtOsData.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                txtOsDataInputMethodTextChanged(evt);
+            }
+        });
+        txtOsData.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtOsDataKeyPressed(evt);
+            }
+        });
+
+        txtOsTecnico.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtOsTecnicoKeyTyped(evt);
+            }
+        });
+
+        jLabel8.setText("Técnico");
+
+        jLabel9.setText("Valor:");
+
+        txtOsValor.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                txtOsValorInputMethodTextChanged(evt);
+            }
+        });
+        txtOsValor.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtOsValorKeyPressed(evt);
+            }
+        });
+
+        jLabel7.setText("ID Cliente:");
+
+        txtOsCliId.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+                txtOsCliIdInputMethodTextChanged(evt);
+            }
+        });
+        txtOsCliId.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtOsCliIdKeyPressed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(20, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addComponent(jLabel1)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtOSId, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(43, 43, 43)
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtOsData, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(230, 230, 230))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addComponent(jLabel7)
+                                .addGap(19, 19, 19)
+                                .addComponent(txtOsCliId, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGap(26, 26, 26)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(jLabel3)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(txtOsDefeito, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(jLabel4)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(txtOsServico, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGap(181, 181, 181))))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel8)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(txtOsTecnico, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(29, 29, 29)
+                                    .addComponent(jLabel9)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(txtOsValor, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel2)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(txtOsEquipamento, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addContainerGap(99, Short.MAX_VALUE))))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(txtOSId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6)
+                    .addComponent(txtOsData, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtOsEquipamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addGap(24, 24, 24)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtOsDefeito, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtOsServico, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtOsTecnico, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel9)
+                    .addComponent(txtOsValor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtOsCliId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/com/infox/icon/crud/create.png"))); // NOI18N
         jButton1.setToolTipText("Adicionar um novo usuário");
@@ -455,238 +621,67 @@ public class TelaOs extends javax.swing.JFrame {
                 .addGap(38, 38, 38))
         );
 
-        jLabel6.setText("Data:");
-
-        txtUsuId1.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-                txtUsuId1InputMethodTextChanged(evt);
-            }
-        });
-        txtUsuId1.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtUsuId1KeyPressed(evt);
-            }
-        });
-
-        txtUsuLogin1.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtUsuLogin1KeyTyped(evt);
-            }
-        });
-
-        jLabel8.setText("Técnico");
-
-        jLabel9.setText("Valor:");
-
-        txtUsuId3.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-                txtUsuId3InputMethodTextChanged(evt);
-            }
-        });
-        txtUsuId3.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtUsuId3KeyPressed(evt);
-            }
-        });
-
-        txtUsuNome1.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtUsuNome1KeyTyped(evt);
-            }
-        });
-
-        jLabel5.setText("Nome:");
-
-        jLabel7.setText("ID:");
-
-        txtCliId.addInputMethodListener(new java.awt.event.InputMethodListener() {
-            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
-            }
-            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
-                txtCliIdInputMethodTextChanged(evt);
-            }
-        });
-        txtCliId.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtCliIdKeyPressed(evt);
-            }
-        });
-
-        jLabel10.setText("Email");
-
-        jLabel11.setText("Fone:");
-
-        txtClifone.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtClifoneKeyTyped(evt);
-            }
-        });
-
-        txtCliEndereco.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                txtCliEnderecoKeyTyped(evt);
-            }
-        });
-
-        jLabel12.setText("Endereço:");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(81, 81, 81)
-                        .addComponent(jLabel7)
-                        .addGap(19, 19, 19))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel10)
-                            .addComponent(jLabel12))
-                        .addGap(18, 18, 18)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(txtCliEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(46, 46, 46)
-                        .addComponent(jLabel11)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtClifone, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(txtCliEndereco, javax.swing.GroupLayout.PREFERRED_SIZE, 533, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(txtCliId, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel5)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtUsuNome1, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(360, 360, 360))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(43, 43, 43)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(26, 26, 26)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addComponent(jLabel3)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(txtUsuLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 476, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addComponent(jLabel4)
-                                                .addGap(18, 18, 18)
-                                                .addComponent(txtUsuFone)
-                                                .addGap(181, 181, 181))))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(txtUsuLogin1, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(29, 29, 29)
-                                        .addComponent(jLabel9)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(txtUsuId3, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(jPanel1Layout.createSequentialGroup()
-                                            .addGap(22, 22, 22)
-                                            .addComponent(jLabel1)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(txtUsuId, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGap(43, 43, 43)
-                                            .addComponent(jLabel6)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(txtUsuId1, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                            .addComponent(jLabel2)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(txtUsuNome, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addComponent(jSeparator5))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(53, 53, 53)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtUsuId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6)
-                    .addComponent(txtUsuId1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(31, 31, 31)
-                        .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtUsuNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(txtUsuFone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtUsuLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtUsuLogin1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel9)
-                    .addComponent(txtUsuId3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(34, 34, 34)
-                .addComponent(jSeparator5, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(txtCliId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtUsuNome1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel12)
-                    .addComponent(txtCliEndereco, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(txtCliEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtClifone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel11))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 678, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 4, Short.MAX_VALUE))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 674, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        setSize(new java.awt.Dimension(698, 645));
+        setSize(new java.awt.Dimension(698, 487));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void txtOsCliIdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOsCliIdKeyPressed
+        txtOsCliId.setBorder(new LineBorder(Color.GRAY));
+    }//GEN-LAST:event_txtOsCliIdKeyPressed
+
+    private void txtOsCliIdInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtOsCliIdInputMethodTextChanged
+        txtOsCliId.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+    }//GEN-LAST:event_txtOsCliIdInputMethodTextChanged
+
+    private void txtOsValorKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOsValorKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtOsValorKeyPressed
+
+    private void txtOsValorInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtOsValorInputMethodTextChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtOsValorInputMethodTextChanged
+
+    private void txtOsTecnicoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOsTecnicoKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtOsTecnicoKeyTyped
+
+    private void txtOsDataKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOsDataKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtOsDataKeyPressed
+
+    private void txtOsDataInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtOsDataInputMethodTextChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtOsDataInputMethodTextChanged
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        alterar();
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        remover();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         consultar();
@@ -696,73 +691,25 @@ public class TelaOs extends javax.swing.JFrame {
         adicionar();
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        alterar();
-    }//GEN-LAST:event_jButton4ActionPerformed
+    private void txtOsServicoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOsServicoKeyTyped
+        txtOsServico.setBorder(new LineBorder(Color.GRAY));
+    }//GEN-LAST:event_txtOsServicoKeyTyped
 
-    private void txtUsuIdInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtUsuIdInputMethodTextChanged
-        txtUsuId.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-    }//GEN-LAST:event_txtUsuIdInputMethodTextChanged
+    private void txtOSIdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOSIdKeyPressed
+        txtOSId.setBorder(new LineBorder(Color.GRAY));
+    }//GEN-LAST:event_txtOSIdKeyPressed
 
-    private void txtUsuIdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuIdKeyPressed
-        txtUsuId.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtUsuIdKeyPressed
+    private void txtOSIdInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtOSIdInputMethodTextChanged
+        txtOSId.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+    }//GEN-LAST:event_txtOSIdInputMethodTextChanged
 
-    private void txtUsuNomeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuNomeKeyTyped
-        txtUsuNome.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtUsuNomeKeyTyped
+    private void txtOsEquipamentoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOsEquipamentoKeyTyped
+        txtOsEquipamento.setBorder(new LineBorder(Color.GRAY));
+    }//GEN-LAST:event_txtOsEquipamentoKeyTyped
 
-    private void txtUsuFoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuFoneKeyTyped
-        txtUsuFone.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtUsuFoneKeyTyped
-
-    private void txtUsuLoginKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuLoginKeyTyped
-        txtUsuLogin.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtUsuLoginKeyTyped
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        remover();
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void txtUsuId1InputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtUsuId1InputMethodTextChanged
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUsuId1InputMethodTextChanged
-
-    private void txtUsuId1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuId1KeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUsuId1KeyPressed
-
-    private void txtUsuLogin1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuLogin1KeyTyped
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUsuLogin1KeyTyped
-
-    private void txtUsuId3InputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtUsuId3InputMethodTextChanged
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUsuId3InputMethodTextChanged
-
-    private void txtUsuId3KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuId3KeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtUsuId3KeyPressed
-
-    private void txtUsuNome1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUsuNome1KeyTyped
-        txtUsuNome.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtUsuNome1KeyTyped
-
-    private void txtCliIdInputMethodTextChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_txtCliIdInputMethodTextChanged
-        txtCliId.setBorder(javax.swing.BorderFactory.createEmptyBorder());
-    }//GEN-LAST:event_txtCliIdInputMethodTextChanged
-
-    private void txtCliIdKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCliIdKeyPressed
-        txtCliId.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtCliIdKeyPressed
-
-    private void txtClifoneKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClifoneKeyTyped
-        txtClifone.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtClifoneKeyTyped
-
-    private void txtCliEnderecoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCliEnderecoKeyTyped
-        txtCliEndereco.setBorder(new LineBorder(Color.GRAY));
-    }//GEN-LAST:event_txtCliEnderecoKeyTyped
+    private void txtOsDefeitoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtOsDefeitoKeyTyped
+        txtOsDefeito.setBorder(new LineBorder(Color.GRAY));
+    }//GEN-LAST:event_txtOsDefeitoKeyTyped
 
     /**
      * @param args the command line arguments
@@ -806,13 +753,9 @@ public class TelaOs extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -822,21 +765,15 @@ public class TelaOs extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
-    private javax.swing.JSeparator jSeparator5;
-    private javax.swing.JTextField txtCliEmail;
-    private javax.swing.JTextField txtCliEndereco;
-    private javax.swing.JTextField txtCliId;
-    private javax.swing.JTextField txtClifone;
-    private javax.swing.JTextField txtUsuFone;
-    private javax.swing.JTextField txtUsuId;
-    private javax.swing.JTextField txtUsuId1;
-    private javax.swing.JTextField txtUsuId3;
-    private javax.swing.JTextField txtUsuLogin;
-    private javax.swing.JTextField txtUsuLogin1;
-    private javax.swing.JTextField txtUsuNome;
-    private javax.swing.JTextField txtUsuNome1;
+    private javax.swing.JTextField txtOSId;
+    private javax.swing.JTextField txtOsCliId;
+    private javax.swing.JTextField txtOsData;
+    private javax.swing.JTextField txtOsDefeito;
+    private javax.swing.JTextField txtOsEquipamento;
+    private javax.swing.JTextField txtOsServico;
+    private javax.swing.JTextField txtOsTecnico;
+    private javax.swing.JTextField txtOsValor;
     // End of variables declaration//GEN-END:variables
 }
