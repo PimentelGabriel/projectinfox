@@ -5,19 +5,27 @@
  */
 package br.com.infox.telas;
 
-import java.util.Calendar;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import java.util.Calendar;
+import java.sql.*;
+import br.com.infox.dal.ModuloConexao;
+import static java.lang.Integer.parseInt;
+
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author PC02-SALA05
  */
 public class TelaPrincipal extends javax.swing.JFrame {
-
+    Connection conexao = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
     /**
      * Creates new form TelaPrincipal
      */
@@ -26,6 +34,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
     
     public TelaPrincipal() {
         initComponents();
+        
         this.setIconImage(new ImageIcon(getClass().getResource("/br/com/infox/icon/icotela/os.png")).getImage());
         lblDataAtual.setText(formatador.format(data));
     }
@@ -51,8 +60,10 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jmtClientes = new javax.swing.JMenuItem();
         MenCadOs = new javax.swing.JMenuItem();
         MenCadUsu = new javax.swing.JMenuItem();
-        MenRel = new javax.swing.JMenu();
+        Usuários = new javax.swing.JMenu();
+        MenRelCli = new javax.swing.JMenuItem();
         MenRelSer = new javax.swing.JMenuItem();
+        MenRelOS = new javax.swing.JMenuItem();
         MenAju = new javax.swing.JMenu();
         MenAjuSob = new javax.swing.JMenuItem();
         MenOpc = new javax.swing.JMenu();
@@ -148,12 +159,28 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
         Menu.add(MenCadCli);
 
-        MenRel.setText("Relatório");
+        Usuários.setText("Relatório");
+
+        MenRelCli.setText("Clientes");
+        MenRelCli.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenRelCliActionPerformed(evt);
+            }
+        });
+        Usuários.add(MenRelCli);
 
         MenRelSer.setText("Serviços");
-        MenRel.add(MenRelSer);
+        MenRelSer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenRelSerActionPerformed(evt);
+            }
+        });
+        Usuários.add(MenRelSer);
 
-        Menu.add(MenRel);
+        MenRelOS.setText("Usuários");
+        Usuários.add(MenRelOS);
+
+        Menu.add(Usuários);
 
         MenAju.setText("Ajuda");
 
@@ -225,6 +252,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
     private void MenOpcSaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenOpcSaiActionPerformed
         if(JOptionPane.showConfirmDialog(null, "Tem certesa que desea sai?", "Atenção", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+            try {
+                conexao.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+            }
             System.exit(0);
         }
     }//GEN-LAST:event_MenOpcSaiActionPerformed
@@ -243,6 +275,75 @@ public class TelaPrincipal extends javax.swing.JFrame {
         TelaOs os = new TelaOs();
         os.setVisible(true);
     }//GEN-LAST:event_MenCadOsActionPerformed
+
+    private void MenRelCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenRelCliActionPerformed
+        if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Deseja a ipressão desse relatório", "Atenção", JOptionPane.YES_NO_OPTION)){
+            
+    
+            String sql = "SELECT * FROM tbclientes";
+            
+            try {
+                conexao = ModuloConexao.conector();
+                
+                pst = conexao.prepareStatement(sql);
+
+                rs = pst.executeQuery();
+            
+                System.out.println("\t\tCLIENTES CADASTRADOS");
+                System.out.println("------------------------------------------------------");
+                while(rs.next()){
+                    System.out.print(rs.getString(1)+" | ");
+                    System.out.print(rs.getString(2)+" | ");
+                    System.out.print(rs.getString(3)+" | ");
+                    System.out.print(rs.getString(4)+" | ");
+                    System.out.println(rs.getString(5)+" | ");
+                }
+                
+                conexao.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }//GEN-LAST:event_MenRelCliActionPerformed
+
+    private void MenRelSerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenRelSerActionPerformed
+        if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Deseja a ipressão desse relatório", "Atenção", JOptionPane.YES_NO_OPTION)){
+            
+    
+            String sql = "SELECT os, data_os, equipamento, defeito, servico, tecnico, valor, idcli, Day(data_os), Day(data_os)+Month(data_os)*30+Year(data_os) FROM tbos";
+            
+            try {
+                conexao = ModuloConexao.conector();
+                
+                pst = conexao.prepareStatement(sql);
+
+                rs = pst.executeQuery();
+            
+                System.out.println("\t\tORDEM DE SERVIÇOS\n\t\t   CADASTRADAS");
+                int atualDay = -1;
+                
+                while(rs.next()){
+                    if(atualDay < parseInt(rs.getString(10))){
+                        System.out.println("\n------------------------------------------------------");
+                        atualDay = parseInt(rs.getString(9));
+                        System.out.println("Dia da OS: "+atualDay);
+                    }
+                    System.out.print(rs.getString(1)+" | ");
+                    System.out.print(rs.getString(2)+" | ");
+                    System.out.print(rs.getString(3)+" | ");
+                    System.out.print(rs.getString(4)+" | ");
+                    System.out.print(rs.getString(5)+" | ");
+                    System.out.print(rs.getString(6)+" | ");
+                    System.out.print(rs.getString(7)+" | ");
+                    System.out.println(rs.getString(8)+" | ");
+                }
+                
+                conexao.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }//GEN-LAST:event_MenRelSerActionPerformed
 
     /**
      * @param args the command line arguments
@@ -287,9 +388,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuItem MenCadUsu;
     private javax.swing.JMenu MenOpc;
     private javax.swing.JMenuItem MenOpcSai;
-    private javax.swing.JMenu MenRel;
+    private javax.swing.JMenuItem MenRelCli;
+    private javax.swing.JMenuItem MenRelOS;
     private javax.swing.JMenuItem MenRelSer;
     private javax.swing.JMenuBar Menu;
+    private javax.swing.JMenu Usuários;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
