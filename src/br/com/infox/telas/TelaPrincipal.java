@@ -11,7 +11,9 @@ import javax.swing.JOptionPane;
 import java.util.Calendar;
 import java.sql.*;
 import br.com.infox.dal.ModuloConexao;
+import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
+import java.text.DecimalFormat;
 
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -177,7 +179,12 @@ public class TelaPrincipal extends javax.swing.JFrame {
         });
         Usuários.add(MenRelSer);
 
-        MenRelOS.setText("Usuários");
+        MenRelOS.setText("OS");
+        MenRelOS.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MenRelOSActionPerformed(evt);
+            }
+        });
         Usuários.add(MenRelOS);
 
         Menu.add(Usuários);
@@ -252,11 +259,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
     private void MenOpcSaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenOpcSaiActionPerformed
         if(JOptionPane.showConfirmDialog(null, "Tem certesa que desea sai?", "Atenção", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-            try {
-                conexao.close();
-            } catch (SQLException ex) {
-                Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-            }
             System.exit(0);
         }
     }//GEN-LAST:event_MenOpcSaiActionPerformed
@@ -288,20 +290,27 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 pst = conexao.prepareStatement(sql);
 
                 rs = pst.executeQuery();
+                
             
                 System.out.println("\t\tCLIENTES CADASTRADOS");
-                System.out.println("------------------------------------------------------");
                 while(rs.next()){
-                    System.out.print(rs.getString(1)+" | ");
-                    System.out.print(rs.getString(2)+" | ");
-                    System.out.print(rs.getString(3)+" | ");
-                    System.out.print(rs.getString(4)+" | ");
-                    System.out.println(rs.getString(5)+" | ");
+                    System.out.println("┌────────────────────────────────");
+                    System.out.println("│ ID: "+rs.getString(1));
+                    System.out.println("│ Nome: "+rs.getString(2));
+                    System.out.println("│ Endereço: "+rs.getString(3));
+                    System.out.println("│ Telefone: "+rs.getString(4)+"│Email: "+rs.getString(5));
+                    System.out.println("└────────────────────────────────\n");
                 }
                 
-                conexao.close();
+                
             } catch (Exception e) {
                 System.out.println(e);
+            }finally{
+                try {
+                    conexao.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }//GEN-LAST:event_MenRelCliActionPerformed
@@ -309,8 +318,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private void MenRelSerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenRelSerActionPerformed
         if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Deseja a ipressão desse relatório", "Atenção", JOptionPane.YES_NO_OPTION)){
             
-    
-            String sql = "SELECT os, data_os, equipamento, defeito, servico, tecnico, valor, idcli, Day(data_os), Day(data_os)+Month(data_os)*30+Year(data_os) FROM tbos";
+            String sql = "select O.os, equipamento, defeito, servico, valor,\n" +
+                         "C.nomecli, fonecli\n" +
+                         "from tbos as O\n" +
+                         "inner join tbclientes as C\n" +
+                         "on (O.idcli = C.idcli)";
             
             try {
                 conexao = ModuloConexao.conector();
@@ -321,29 +333,95 @@ public class TelaPrincipal extends javax.swing.JFrame {
             
                 System.out.println("\t\tORDEM DE SERVIÇOS\n\t\t   CADASTRADAS");
                 int atualDay = -1;
-                
+                        
                 while(rs.next()){
-                    if(atualDay < parseInt(rs.getString(10))){
-                        System.out.println("\n------------------------------------------------------");
-                        atualDay = parseInt(rs.getString(9));
-                        System.out.println("Dia da OS: "+atualDay);
-                    }
-                    System.out.print(rs.getString(1)+" | ");
-                    System.out.print(rs.getString(2)+" | ");
-                    System.out.print(rs.getString(3)+" | ");
-                    System.out.print(rs.getString(4)+" | ");
-                    System.out.print(rs.getString(5)+" | ");
-                    System.out.print(rs.getString(6)+" | ");
-                    System.out.print(rs.getString(7)+" | ");
-                    System.out.println(rs.getString(8)+" | ");
+                    System.out.println("┌────────────────────────────────");
+                    System.out.println("│ ID: "+rs.getString(1));
+                    System.out.println("│ Equipamento: "+rs.getString(2));
+                    System.out.println("│ Defeito: "+rs.getString(3));
+                    System.out.println("│ Serviço: "+rs.getString(4)+"   |   Valor: "+rs.getString(5));
+                    System.out.println("│ Cliente: "+rs.getString(6)+"\tTelefone: "+rs.getString(7));
+                    System.out.println("└────────────────────────────────\n");
                 }
-                
-                conexao.close();
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 System.out.println(e);
+            }finally{
+                try {
+                    conexao.close();
+                } catch (SQLException ex) {
+                    Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }//GEN-LAST:event_MenRelSerActionPerformed
+
+    private void MenRelOSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenRelOSActionPerformed
+        
+        if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "Deseja a ipressão desse relatório", "Atenção", JOptionPane.YES_NO_OPTION)){
+            DecimalFormat df = new DecimalFormat("#.00");
+            
+            String sql = "SELECT os, data_os, equipamento, defeito, servico, tecnico, valor, idcli, Day(data_os), Day(data_os)+Month(data_os)*30+Year(data_os) FROM tbos";
+            
+            try {
+                conexao = ModuloConexao.conector();
+                
+                pst = conexao.prepareStatement(sql);
+
+                rs = pst.executeQuery();
+            
+                System.out.println("\t\tORDEM DE SERVIÇOS\n\t\tFATURAMENTO DIÁRIO");
+                int atualDay = -1;
+                double faturamentoDia = 0.0;
+                while(rs.next()){
+                    if(atualDay < parseInt(rs.getString(10))){
+                        
+                        if(atualDay != -1){
+                            System.out.println("╠═════════════════════════════════");
+                            System.out.println("║ Faturamento do Dia R$ "+df.format(faturamentoDia));
+                            System.out.println("╚═════════════════════════════════");
+                            faturamentoDia = 0;
+                        }
+                        faturamentoDia = parseFloat(rs.getString(7));
+                        
+                        atualDay = parseInt(rs.getString(10));
+                        
+                        System.out.println(" ");
+                        System.out.println("╔═══════════════════════════════");
+                        System.out.println("║ Dia: "+rs.getString(9));
+                        System.out.println("╠═══════════════════════════════");
+                    }else{
+                        //Soma o faturamento do dia
+                        faturamentoDia += parseFloat(rs.getString(7));
+                    }
+                    
+                    System.out.println("║ ┌───────────────────────────────");
+                    System.out.println("║ │ ID: "+rs.getString(1)+"   Data: "+rs.getString(2));
+                    System.out.println("║ ├───────────────────────────────");
+                    System.out.println("║ │ Equipamento: "+rs.getString(3));
+                    System.out.println("║ │ Defeito: "+rs.getString(4));
+                    System.out.println("║ │ Serviço: "+rs.getString(5));
+                    System.out.println("║ │ Técnico: "+rs.getString(6));
+                    System.out.println("║ │ Valor: R$ "+df.format(parseFloat(rs.getString(7))) );
+                    System.out.println("║ │ IdClinte: "+rs.getString(8));
+                    System.out.println("║ └───────────────────────────────");
+                    System.out.println("║");
+                    
+                }
+                System.out.println("╠═════════════════════════════════");
+                System.out.println("║ Faturamento do Dia R$ "+df.format(faturamentoDia));
+                System.out.println("╚═════════════════════════════════");
+                
+            } catch (Exception e) {
+                System.out.println(e);
+            }finally{
+                try {
+                    conexao.close();
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+        }
+    }//GEN-LAST:event_MenRelOSActionPerformed
 
     /**
      * @param args the command line arguments
